@@ -5,12 +5,58 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 	"unicode"
 )
 
+func processLine(text string, wg *sync.WaitGroup, ch chan<- map[string]int) {
+	defer wg.Done()
+
+	// Local counts for this line
+	localCounts := map[string]int{
+		"vowels":       0,
+		"consonants":   0,
+		"digits":       0,
+		"specialChars": 0,
+		"letters":      0,
+	}
+
+	// Process each character in the line
+	for _, ch := range text {
+		// Fast path: letters
+		if unicode.IsLetter(ch) {
+			localCounts["letters"]++
+			switch ch | 0x20 { // Bitwise OR for fast lowercase (ASCII only)
+			case 'a', 'e', 'i', 'o', 'u':
+				localCounts["vowels"]++
+			default:
+				localCounts["consonants"]++
+			}
+			continue
+		}
+
+		// Digits (ASCII only)
+		if ch >= '0' && ch <= '9' {
+			localCounts["digits"]++
+			continue
+		}
+
+		// Space
+		if unicode.IsSpace(ch) {
+			continue
+		}
+
+		// Everything else is special
+		localCounts["specialChars"]++
+	}
+
+	// Send the local counts to the channel
+	ch <- localCounts
+}
+
 func main() {
-	start := time.Now() //Start timing
+	start := time.Now() // Start timing
 
 	filePath := `C:\Users\Dell\Documents\practice.txt`
 
@@ -20,38 +66,34 @@ func main() {
 	}
 	defer file.Close()
 
+	// Use a wait group to wait for all goroutines to finish
+	var wg sync.WaitGroup
+
+	// Channel to receive the counts from each goroutine
+	ch := make(chan map[string]int, 100) // Buffered channel to hold counts
+
 	var vowels, consonants, digits, specialChars, letters int
 
+	// Read the file line by line using a scanner
 	scanner := bufio.NewScanner(file)
-
 	for scanner.Scan() {
-		for _, ch := range scanner.Text() {
-			// Fast path: letters
-			if unicode.IsLetter(ch) {
-				letters++
-				switch ch | 0x20 { // Bitwise OR for fast lowercase (ASCII only)
-				case 'a', 'e', 'i', 'o', 'u':
-					vowels++
-				default:
-					consonants++
-				}
-				continue
-			}
+		wg.Add(1)                               // Increment wait group for each goroutine
+		go processLine(scanner.Text(), &wg, ch) // Start a goroutine for each line
+	}
 
-			// Digits (ASCII only)
-			if ch >= '0' && ch <= '9' {
-				digits++
-				continue
-			}
+	// Wait for all goroutines to finish
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
 
-			// Space
-			if unicode.IsSpace(ch) {
-				continue
-			}
-
-			// Everything else is special
-			specialChars++
-		}
+	// Collect the counts from the channel
+	for counts := range ch {
+		vowels += counts["vowels"]
+		consonants += counts["consonants"]
+		digits += counts["digits"]
+		specialChars += counts["specialChars"]
+		letters += counts["letters"]
 	}
 
 	if err := scanner.Err(); err != nil {
