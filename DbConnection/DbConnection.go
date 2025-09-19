@@ -14,9 +14,8 @@ var DB *sql.DB
 
 func ConnectDB() {
 	var err error
-	// MySQL connection details
-	dsn := "root:NoPass@Ok032@tcp(localhost:3306)/fileanalyser"
 
+	dsn := "root:NoPass@Ok032@tcp(localhost:3306)/fileanalyser"
 	// Open a connection to the database
 	DB, err = sql.Open("mysql", dsn)
 	if err != nil {
@@ -30,4 +29,5 @@ func ConnectDB() {
 	}
 
 	fmt.Println("Successfully connected to the database!")
+
 }
