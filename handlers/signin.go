@@ -4,11 +4,15 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/malaika-muneer/File-Analyser/DbConnection"
 	"github.com/malaika-muneer/File-Analyser/models"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var jwtSecret = []byte("your-secret-key") // Change this to your secret key for signing tokens
 
 // SignInHandler handles the sign-in process
 func SignInHandler(w http.ResponseWriter, r *http.Request) {
@@ -54,7 +58,41 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	// Log successful login
 	log.Printf("User %s signed in successfully", signInData.Username)
 
-	// Respond with success
+	// Generate JWT token
+	token, err := generateJWT(storedUser.Username)
+	if err != nil {
+		log.Printf("Error generating token: %v", err)
+		http.Error(w, "Error generating token", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the token
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"message": "Success"})
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Success",
+		"token":   token,
+	})
+}
+
+// generateJWT creates a JWT token for the user
+func generateJWT(username string) (string, error) {
+	// Set expiration time for the token (e.g., 24 hours)
+	expirationTime := time.Now().Add(24 * time.Hour)
+
+	// Create the claims for the token
+	claims := &jwt.MapClaims{
+		"username": username,
+		"exp":      expirationTime.Unix(),
+	}
+
+	// Create the JWT token with the claims and the signing method
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Sign the token with the secret key
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/malaika-muneer/File-Analyser/DbConnection"
@@ -44,4 +45,5 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	// Respond with success
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{"message": "User created successfully"})
+	log.Printf("user created succesfully and stored in database")
 }

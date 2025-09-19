@@ -16,6 +16,8 @@ func main() {
 
 	http.HandleFunc("/upload", handlers.UploadFile)
 	http.HandleFunc("/signup", handlers.SignupHandler)
+	http.HandleFunc("/signin", handlers.SignInHandler)
+
 	// Create uploads directory if it doesn't exist
 	if _, err := os.Stat("./uploads"); os.IsNotExist(err) {
 		err := os.Mkdir("./uploads", os.ModePerm)

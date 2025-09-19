@@ -19,6 +19,8 @@ type User struct {
 	Password string `json:"password"`
 	Email    string `json:"email"`
 }
+
+//struct represent a user for sign-in
 type SignIn struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
