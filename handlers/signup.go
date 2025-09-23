@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	dbConnection "github.com/malaika-muneer/File-Analyser/DbConnection"
 	"github.com/malaika-muneer/File-Analyser/models"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -31,7 +32,7 @@ func SignupHandler(c *gin.Context) {
 
 	// Insert the user data into the database
 
-	if err := DbConnection.InsertUser(user); err != nil {
+	if err := dbConnection.InsertUser(user); err != nil {
 		fmt.Println("err", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting user into database"})
 		return

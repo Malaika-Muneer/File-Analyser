@@ -8,6 +8,7 @@ import (
 	"unicode"
 
 	"github.com/gin-gonic/gin"
+	dbConnection "github.com/malaika-muneer/File-Analyser/DbConnection"
 	"github.com/malaika-muneer/File-Analyser/models"
 )
 
@@ -39,7 +40,7 @@ func UploadFile(c *gin.Context) {
 	// Wait for the result from the channel
 	analysis := <-analysisCh
 
-	DbConnection.InsertAnalysisData(analysis)
+	dbConnection.InsertAnalysisData(analysis)
 
 	c.JSON(http.StatusOK, analysis)
 }

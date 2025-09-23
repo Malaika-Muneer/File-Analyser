@@ -7,13 +7,13 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/malaika-muneer/File-Analyser/DbConnection"
-	routes "github.com/malaika-muneer/File-Analyser/Routes"
+	"github.com/malaika-muneer/File-Analyser/dbConnection"
+	routes "github.com/malaika-muneer/File-Analyser/routes"
 )
 
 func main() {
 
-	DbConnection.ConnectDB()
+	dbConnection.ConnectDB()
 
 	// Create uploads folder if not exists
 	if _, err := os.Stat("./uploads"); os.IsNotExist(err) {
