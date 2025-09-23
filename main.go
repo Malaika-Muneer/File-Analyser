@@ -8,8 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/malaika-muneer/File-Analyser/DbConnection"
-	"github.com/malaika-muneer/File-Analyser/handlers"
-	"github.com/malaika-muneer/File-Analyser/middleware"
+	routes "github.com/malaika-muneer/File-Analyser/Routes"
 )
 
 func main() {
@@ -27,14 +26,7 @@ func main() {
 	// Initialize Gin router
 	r := gin.Default()
 	// Public routes
-	r.POST("/upload", handlers.UploadFile)
-	r.POST("/signup", handlers.SignupHandler)
-	r.POST("/signin", handlers.SignInHandler)
-
-	r.GET("/protected", middleware.TokenValidationMiddleware(), func(c *gin.Context) {
-		c.String(200, "This is a protected route, you are authorized!")
-	})
-
+	routes.SetupRoutes(r)
 	fmt.Println("Server started at http://localhost:8005")
 	r.Run(":8005")
 

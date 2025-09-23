@@ -8,6 +8,7 @@ import (
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/malaika-muneer/File-Analyser/config"
 )
 
 var DB *sql.DB
@@ -15,13 +16,7 @@ var DB *sql.DB
 func ConnectDB() {
 	var err error
 
-	dsn := "root:NoPass@Ok032@tcp(localhost:3306)/fileanalyser"
-	// Open a connection to the database
-	DB, err = sql.Open("mysql", dsn)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	config.InitDB()
 	// Check the connection
 	err = DB.Ping()
 	if err != nil {
