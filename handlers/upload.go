@@ -1,30 +1,25 @@
 package handlers
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
 	"unicode"
 
+	"github.com/gin-gonic/gin"
 	"github.com/malaika-muneer/File-Analyser/DbConnection"
 	"github.com/malaika-muneer/File-Analyser/models"
 )
 
 // Handle file upload, analyze it, and return JSON response
-func UploadFile(w http.ResponseWriter, r *http.Request) {
+func UploadFile(c *gin.Context) {
 	log.Println("Upload endpoint hit")
-	if r.Method != "POST" {
-		log.Println("Invalid method:", r.Method)
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	// Get the uploaded file
-	file, _, err := r.FormFile("uploadedFile")
+	file, _, err := c.Request.FormFile("uploadedFile")
 	if err != nil {
-		http.Error(w, "Failed to read uploaded file", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read Uploaded file"})
 		return
 	}
 	defer file.Close()
@@ -32,7 +27,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	// Read the entire content of the file
 	fileContent, err := ioutil.ReadAll(file)
 	if err != nil {
-		http.Error(w, "Failed to read file content", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read file content."})
 		return
 	}
 
@@ -47,13 +42,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	DbConnection.InsertAnalysisData(analysis)
 
-	// Set response header to application/json
-	w.Header().Set("Content-Type", "application/json")
-	// Encode the analysis result as JSON and send the response
-	if err := json.NewEncoder(w).Encode(analysis); err != nil {
-		http.Error(w, "Failed to encode JSON response", http.StatusInternalServerError)
-		return
-	}
+	c.JSON(http.StatusOK, analysis)
 }
 
 // Function to analyze the file content concurrently

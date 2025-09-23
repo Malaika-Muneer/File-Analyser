@@ -3,22 +3,20 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
+
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/malaika-muneer/File-Analyser/DbConnection"
 	"github.com/malaika-muneer/File-Analyser/handlers"
+	"github.com/malaika-muneer/File-Analyser/middleware"
 )
 
 func main() {
 
 	DbConnection.ConnectDB()
 
-	http.HandleFunc("/upload", handlers.UploadFile)
-	http.HandleFunc("/signup", handlers.SignupHandler)
-	http.HandleFunc("/signin", handlers.SignInHandler)
-
-	// Create uploads directory if it doesn't exist
+	// Create uploads folder if not exists
 	if _, err := os.Stat("./uploads"); os.IsNotExist(err) {
 		err := os.Mkdir("./uploads", os.ModePerm)
 		if err != nil {
@@ -26,7 +24,18 @@ func main() {
 		}
 	}
 
+	// Initialize Gin router
+	r := gin.Default()
+	// Public routes
+	r.POST("/upload", handlers.UploadFile)
+	r.POST("/signup", handlers.SignupHandler)
+	r.POST("/signin", handlers.SignInHandler)
+
+	r.GET("/protected", middleware.TokenValidationMiddleware(), func(c *gin.Context) {
+		c.String(200, "This is a protected route, you are authorized!")
+	})
+
 	fmt.Println("Server started at http://localhost:8005")
-	log.Fatal(http.ListenAndServe(":8005", nil))
+	r.Run(":8005")
 
 }
