@@ -7,8 +7,8 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/malaika-muneer/File-Analyser/dbConnection"
-	routes "github.com/malaika-muneer/File-Analyser/routes"
+	dbConnection "github.com/malaika-muneer/File-Analyser/DbConnection"
+	"github.com/malaika-muneer/File-Analyser/Routes"
 )
 
 func main() {
@@ -26,7 +26,7 @@ func main() {
 	// Initialize Gin router
 	r := gin.Default()
 	// Public routes
-	routes.SetupRoutes(r)
+	Routes.SetupRoutes(r)
 	fmt.Println("Server started at http://localhost:8005")
 	r.Run(":8005")
 

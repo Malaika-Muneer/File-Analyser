@@ -7,7 +7,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	dbConnection "github.com/malaika-muneer/File-Analyser/dbConnection"
+	dbConnection "github.com/malaika-muneer/File-Analyser/DbConnection"
 	"github.com/malaika-muneer/File-Analyser/models"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -50,7 +50,7 @@ func SignInHandler(c *gin.Context) {
 	log.Printf("User %s signed in successfully", signInData.Username)
 
 	// Generate JWT token
-	token, err := generateJWT(storedUser.Username)
+	token, err := generateJWT(storedUser.Username, storedUser.Id)
 	if err != nil {
 		log.Printf("Error generating token: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating Token"})
@@ -66,13 +66,14 @@ func SignInHandler(c *gin.Context) {
 }
 
 // generateJWT creates a JWT token for the user
-func generateJWT(username string) (string, error) {
+func generateJWT(username string, id int) (string, error) {
 	// Set expiration time for the token (e.g., 24 hours)
 	expirationTime := time.Now().Add(24 * time.Hour)
 
 	// Create the claims for the token
 	claims := &jwt.MapClaims{
 		"username": username,
+		"id":       id,
 		"exp":      expirationTime.Unix(),
 	}
 
