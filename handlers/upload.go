@@ -8,7 +8,6 @@ import (
 	"unicode"
 
 	"github.com/gin-gonic/gin"
-	"github.com/malaika-muneer/File-Analyser/DbConnection"
 	"github.com/malaika-muneer/File-Analyser/models"
 )
 
