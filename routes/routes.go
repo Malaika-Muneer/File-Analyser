@@ -7,11 +7,17 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine) {
-	r.POST("/upload", handlers.UploadFile)
+	//r.POST("/upload", handlers.UploadFile)
+	//these are public routes
 	r.POST("/signup", handlers.SignupHandler)
 	r.POST("/signin", handlers.SignInHandler)
 
-	r.GET("/protected", middleware.TokenValidationMiddleware(), func(c *gin.Context) {
+	auth := r.Group("/inside")
+	auth.Use(middleware.TokenValidationMiddleware())
+
+	auth.POST("/upload", handlers.UploadFile)
+
+	auth.GET("/protected", func(c *gin.Context) {
 		c.String(200, "This is a protected route, you are authorized!")
 	})
 

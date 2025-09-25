@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var jwtSecret = []byte("bhufu676") // This should be the same secret you use to sign the JWT
+var jwtSecret = []byte("your-secret-key") // This should be the same secret you use to sign the JWT
 
 func TokenValidationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -32,11 +32,6 @@ func TokenValidationMiddleware() gin.HandlerFunc {
 			}
 			return jwtSecret, nil
 		})
-
-		if err != nil || !token.Valid {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
-			return
-		}
 
 		if err != nil || !token.Valid {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
