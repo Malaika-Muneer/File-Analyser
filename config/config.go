@@ -13,11 +13,19 @@ var DB *sql.DB
 
 func InitDB() {
 	// Read environment variables
-	username := os.Getenv("USERNAME")
-	password := os.Getenv("PASSWORD")
-	host := os.Getenv("HOST")
-	port := os.Getenv("PORT")
+	username := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASS")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
 	dbname := os.Getenv("DB_NAME")
+
+	fmt.Println("ENV values:",
+		"USERNAME=", username,
+		"PASSWORD=", password,
+		"HOST=", host,
+		"PORT=", port,
+		"DBNAME=", dbname,
+	)
 
 	// Create DSN string
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",

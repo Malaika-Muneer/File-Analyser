@@ -3,26 +3,37 @@ package DbConnection
 import (
 	"database/sql"
 	"fmt"
-
-	// main "go-mysql-app"
 	"log"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/malaika-muneer/File-Analyser/config"
+	"github.com/joho/godotenv"
 )
 
 var DB *sql.DB
 
 func ConnectDB() {
-	var err error
-
-	config.InitDB()
-	// Check the connection
-	err = DB.Ping()
+	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error loading .env file: %v", err)
 	}
 
-	fmt.Println("Successfully connected to the database!")
+	username := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASS")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	dbname := os.Getenv("DB_NAME")
 
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", username, password, host, port, dbname)
+
+	DB, err = sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatalf("Error opening DB: %v", err)
+	}
+
+	if err = DB.Ping(); err != nil {
+		log.Fatalf("Error connecting to DB: %v", err)
+	}
+
+	fmt.Println("✅ Successfully connected to the database!")
 }

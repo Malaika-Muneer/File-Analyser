@@ -7,7 +7,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	dbConnection "github.com/malaika-muneer/File-Analyser/DbConnection"
+	"github.com/malaika-muneer/File-Analyser/DbConnection"
 	"github.com/malaika-muneer/File-Analyser/models"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -27,7 +27,7 @@ func SignInHandler(c *gin.Context) {
 	// Query the database for the user by username/email
 	var storedUser models.User
 	query := "SELECT username, password FROM users WHERE username = ? OR email = ?"
-	err := dbConnection.DB.QueryRow(query, signInData.Username, signInData.Username).Scan(&storedUser.Username, &storedUser.Password)
+	err := DbConnection.DB.QueryRow(query, signInData.Username, signInData.Username).Scan(&storedUser.Username, &storedUser.Password)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			log.Printf("Invalid credentials for username/email: %s", signInData.Username)
