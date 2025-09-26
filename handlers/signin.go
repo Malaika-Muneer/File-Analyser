@@ -26,8 +26,8 @@ func SignInHandler(c *gin.Context) {
 
 	// Query the database for the user by username/email
 	var storedUser models.User
-	query := "SELECT username, password FROM users WHERE username = ? OR email = ?"
-	err := DbConnection.DB.QueryRow(query, signInData.Username, signInData.Username).Scan(&storedUser.Username, &storedUser.Password)
+	query := "SELECT id,username, password FROM users WHERE username = ? OR email = ?"
+	err := DbConnection.DB.QueryRow(query, signInData.Username, signInData.Username).Scan(&storedUser.Id, &storedUser.Username, &storedUser.Password)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			log.Printf("Invalid credentials for username/email: %s", signInData.Username)

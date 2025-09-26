@@ -17,6 +17,7 @@ func TokenValidationMiddleware() gin.HandlerFunc {
 		tokenString := c.GetHeader("Authorization")
 		if tokenString == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
+			c.Abort()
 			return
 		}
 
@@ -38,6 +39,22 @@ func TokenValidationMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			username := claims["username"].(string)
+			idFloat, ok := claims["id"].(float64)
+			if !ok {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: id not found"})
+				return
+			}
+			id := int(idFloat)
+			c.Set("id", id)
+
+			c.Set("username", username) // attach username to context
+
+		} else {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			return
+		}
 		// Token is valid → continue
 		log.Println("token is valid")
 		c.Next()

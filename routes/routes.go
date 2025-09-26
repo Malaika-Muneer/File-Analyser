@@ -12,7 +12,7 @@ func SetupRoutes(r *gin.Engine) {
 	r.POST("/signup", handlers.SignupHandler)
 	r.POST("/signin", handlers.SignInHandler)
 
-	auth := r.Group("/inside")
+	auth := r.Group("/")
 	auth.Use(middleware.TokenValidationMiddleware())
 
 	auth.POST("/upload", handlers.UploadFile)

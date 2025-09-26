@@ -15,6 +15,12 @@ import (
 // Handle file upload, analyze it, and return JSON response
 func UploadFile(c *gin.Context) {
 	log.Println("Upload endpoint hit")
+	// Get username from middleware (set in context)
+	username, exists := c.Get("username")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found in context"})
+		return
+	}
 
 	// Get the uploaded file
 	file, _, err := c.Request.FormFile("uploadedFile")
@@ -39,6 +45,9 @@ func UploadFile(c *gin.Context) {
 
 	// Wait for the result from the channel
 	analysis := <-analysisCh
+
+	// Attach username to the analysis
+	analysis.Username = username.(string)
 
 	DbConnection.InsertAnalysisData(analysis)
 
