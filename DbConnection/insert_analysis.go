@@ -9,7 +9,7 @@ import (
 func InsertAnalysisData(analysis models.FileAnalysis) error {
 	log.Printf("Database insert")
 	query := `
-    INSERT INTO analysis_results (id,username,vowels, consonants, digits, special_chars, letters, upper_case, lower_case, spaces, total_chars)
+    INSERT INTO analysis_results (user_id,username,vowels, consonants, digits, special_chars, letters, upper_case, lower_case, spaces, total_chars)
     VALUES (?,?,?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
 
