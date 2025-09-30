@@ -8,7 +8,7 @@ import (
 	"unicode"
 
 	"github.com/gin-gonic/gin"
-	"github.com/malaika-muneer/File-Analyser/DbConnection"
+	"github.com/malaika-muneer/File-Analyser/db"
 	"github.com/malaika-muneer/File-Analyser/models"
 )
 
@@ -51,7 +51,7 @@ func UploadFile(c *gin.Context) {
 	analysis.Username = username.(string)
 	analysis.Id = id.(int)
 
-	DbConnection.InsertAnalysisData(analysis)
+	db.InsertAnalysisData(analysis)
 
 	c.JSON(http.StatusOK, analysis)
 }

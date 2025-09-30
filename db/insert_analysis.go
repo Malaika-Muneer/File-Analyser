@@ -1,4 +1,4 @@
-package DbConnection
+package db
 
 import (
 	"log"

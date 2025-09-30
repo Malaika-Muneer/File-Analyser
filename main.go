@@ -7,13 +7,13 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/malaika-muneer/File-Analyser/DbConnection"
-	"github.com/malaika-muneer/File-Analyser/Routes"
+	"github.com/malaika-muneer/File-Analyser/db"
+	"github.com/malaika-muneer/File-Analyser/routes"
 )
 
 func main() {
 
-	DbConnection.ConnectDB()
+	db.ConnectDB()
 
 	// Create uploads folder if not exists
 	if _, err := os.Stat("./uploads"); os.IsNotExist(err) {
@@ -26,7 +26,7 @@ func main() {
 	// Initialize Gin router
 	r := gin.Default()
 	// Public routes
-	Routes.SetupRoutes(r)
+	routes.SetupRoutes(r)
 	fmt.Println("Server started at http://localhost:8005")
 	r.Run(":8005")
 
