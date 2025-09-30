@@ -14,7 +14,7 @@ func InsertAnalysisData(analysis models.FileAnalysis) error {
     `
 
 	// Execute the query with the values
-	_, err := DB.Exec(query, analysis.User_id, analysis.Username, analysis.Vowels, analysis.Consonants, analysis.Digits, analysis.SpecialChars,
+	_, err := DB.Exec(query, analysis.Id, analysis.Username, analysis.Vowels, analysis.Consonants, analysis.Digits, analysis.SpecialChars,
 		analysis.Letters, analysis.UpperCase, analysis.LowerCase, analysis.Spaces, analysis.TotalChars)
 	if err != nil {
 		log.Println("Error inserting data into the database:", err)

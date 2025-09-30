@@ -2,7 +2,7 @@ package models
 
 // Struct for storing file analysis results
 type FileAnalysis struct {
-	User_id      int    `json:"id" db:"id"`
+	Id           int    `json:"id" db:"id"`
 	Username     string `json:"username" db:"username"`
 	Vowels       int    `json:"vowels"`
 	Consonants   int    `json:"consonants"`

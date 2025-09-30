@@ -17,6 +17,7 @@ func UploadFile(c *gin.Context) {
 	log.Println("Upload endpoint hit")
 	// Get username from middleware (set in context)
 	username, exists := c.Get("username")
+	id, exists := c.Get("id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found in context"})
 		return
@@ -48,6 +49,7 @@ func UploadFile(c *gin.Context) {
 
 	// Attach username to the analysis
 	analysis.Username = username.(string)
+	analysis.Id = id.(int)
 
 	DbConnection.InsertAnalysisData(analysis)
 
