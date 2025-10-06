@@ -35,5 +35,13 @@ func ConnectDB() {
 		log.Fatalf("Error connecting to DB: %v", err)
 	}
 
-	fmt.Println("✅ Successfully connected to the database!")
+	fmt.Println("Successfully connected to the database!")
+}
+
+// GetDB returns the database instance
+func GetDB() *sql.DB {
+	if DB == nil {
+		log.Fatal("Database connection is not initialized. Call ConnectDB() first.")
+	}
+	return DB
 }

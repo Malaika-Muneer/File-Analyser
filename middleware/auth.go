@@ -64,7 +64,7 @@ func TokenValidationMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		log.Println("✅ token is valid")
+		log.Println(" token is valid")
 		c.Next()
 	}
 }

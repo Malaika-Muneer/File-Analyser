@@ -1,42 +1,25 @@
 package handlers
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/malaika-muneer/File-Analyser/db"
 	"github.com/malaika-muneer/File-Analyser/models"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/malaika-muneer/File-Analyser/service"
 )
 
-// signupHandler handles the sign-up process
 func SignupHandler(c *gin.Context) {
-
 	var user models.User
-	//binding JSON request to struct
+
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Inavlid Request Body "})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
-	// Hash the password using bcrypt
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error hashing password"})
+	if err := service.SignupUser(user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	user.Password = string(hashedPassword)
-
-	// Insert the user data into the database
-
-	if err := db.InsertUser(user); err != nil {
-		fmt.Println("err", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting user into database"})
-		return
-	}
-	c.JSON(http.StatusCreated, gin.H{"message ": "user created succesfully"})
-	log.Printf("user created succesfully and stored in database")
+	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
 }
