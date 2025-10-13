@@ -10,29 +10,25 @@ import (
 )
 
 // SignupUser handles the signup logic
-func SignupUser(user models.User) error {
-	// Basic input validation
+func (s *UserServiceImpl) SignupUser(user models.User) error {
+
 	if user.Username == "" || user.Password == "" {
 		return errors.New("username or password cannot be empty")
 	}
-
-	// Hash password before storing
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return errors.New("error hashing password")
 	}
 	user.Password = string(hashedPassword)
 
-	if err := db.InsertUser(user); err != nil {
+	if err := s.Dao.InsertUser(user); err != nil {
 		return err
 	}
 
 	return nil
 }
-
-// AuthenticateUser handles user signin (used by SignInHandler)
-func AuthenticateUser(usernameOrEmail, password string) (*models.User, error) {
-	database := db.GetDB()
+func (s *UserServiceImpl) AuthenticateUser(usernameOrEmail, password string) (*models.User, error) {
+	database := db.ConnectDB()
 
 	var storedUser models.User
 	query := "SELECT id, username, password FROM users WHERE username = ? OR email = ?"
@@ -46,7 +42,7 @@ func AuthenticateUser(usernameOrEmail, password string) (*models.User, error) {
 		return nil, err
 	}
 
-	// Compare hashed password with the entered password
+	// Compare hashed password
 	if err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(password)); err != nil {
 		return nil, errors.New("invalid password")
 	}

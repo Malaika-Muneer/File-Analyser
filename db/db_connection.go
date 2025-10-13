@@ -10,9 +10,9 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var DB *sql.DB
+// var DB *sql.DB
 
-func ConnectDB() {
+func ConnectDB() *sql.DB {
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
@@ -26,7 +26,7 @@ func ConnectDB() {
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", username, password, host, port, dbname)
 
-	DB, err = sql.Open("mysql", dsn)
+	DB, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatalf("Error opening DB: %v", err)
 	}
@@ -36,12 +36,15 @@ func ConnectDB() {
 	}
 
 	fmt.Println("Successfully connected to the database!")
+
+	return DB
+
 }
 
-// GetDB returns the database instance
-func GetDB() *sql.DB {
-	if DB == nil {
-		log.Fatal("Database connection is not initialized. Call ConnectDB() first.")
-	}
-	return DB
-}
+// // GetDB returns the database instance
+// func GetDB() *sql.DB {
+// 	if DB == nil {
+// 		log.Fatal("Database connection is not initialized. Call ConnectDB() first.")
+// 	}
+// 	return DB
+// }
