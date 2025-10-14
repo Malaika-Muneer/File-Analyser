@@ -21,11 +21,10 @@ import (
 // @Failure      500  {object}  map[string]string        "Internal server error"
 // @Security     BearerAuth
 // @Router       /upload [post]
-
 func (r *Router) UploadFilehandler(c *gin.Context) {
 	log.Println("Upload endpoint hit")
 	// Get username from middleware (set in context)
-	// username, exists := c.Get("username")
+	username, exists := c.Get("username")
 	id, exists := c.Get("id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found in context"})
@@ -44,7 +43,7 @@ func (r *Router) UploadFilehandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read file content."})
 		return
 	}
-	data, err := r.userService.UploadFile(fileContent, "username", id.(int))
+	data, err := r.userService.UploadFile(fileContent, username.(string), id.(int))
 	log.Println("File content size:", len(fileContent))
 	c.JSON(http.StatusOK, gin.H{
 		"message": "File uploaded successfully",

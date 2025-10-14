@@ -199,9 +199,6 @@ const docTemplate = `{
         "models.SignIn": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
                 "password": {
                     "type": "string"
                 },
@@ -215,9 +212,6 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "password": {
                     "type": "string"
@@ -247,6 +241,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "This is a file analyser application API built with Go and Gin.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {
