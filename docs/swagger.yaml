@@ -1,0 +1,153 @@
+basePath: /
+definitions:
+  models.FileAnalysis:
+    properties:
+      consonants:
+        type: integer
+      digits:
+        type: integer
+      id:
+        type: integer
+      letters:
+        type: integer
+      lower_case:
+        type: integer
+      spaces:
+        type: integer
+      special_chars:
+        type: integer
+      total_hars:
+        type: integer
+      upper_case:
+        type: integer
+      username:
+        type: string
+      vowels:
+        type: integer
+    type: object
+  models.SignIn:
+    properties:
+      id:
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8005
+info:
+  contact: {}
+  description: This is a file analyser application API built with Go and Gin.
+  title: File Analyser
+  version: "2.0"
+paths:
+  /signin:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user and return a JWT token
+      parameters:
+      - description: User credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: User SignIn
+      tags:
+      - Authentication
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: User SignUp
+      tags:
+      - Authentication
+  /upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a file for analysis (requires authentication)
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FileAnalysis'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Upload and analyze a file
+      tags:
+      - File
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

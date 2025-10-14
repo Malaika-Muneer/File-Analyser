@@ -7,6 +7,16 @@ import (
 	"github.com/malaika-muneer/File-Analyser/models"
 )
 
+// @Summary      User SignUp
+// @Description  Register a new user
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        user  body  models.User  true  "User Data"
+// @Success      201  {object}  map[string]interface{}  "User created successfully"
+// @Failure      400  {object}  map[string]interface{}  "Invalid request"
+// @Failure      500  {object}  map[string]interface{}  "Internal Server Error"
+// @Router       /signup [post]
 func (r *Router) SignupHandler(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {

@@ -8,6 +8,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// UploadFilehandler godoc
+// @Summary      Upload a file
+// @Description  Allows an authenticated user to upload a file for analysis or processing
+// @Tags         File
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        uploadedFile  formData  file   true  "File to be uploaded"
+// @Success      200  {object}  map[string]interface{}  "File uploaded successfully"
+// @Failure      400  {object}  map[string]string        "Failed to read uploaded file"
+// @Failure      401  {object}  map[string]string        "User not found or unauthorized"
+// @Failure      500  {object}  map[string]string        "Internal server error"
+// @Security     BearerAuth
+// @Router       /upload [post]
+
 func (r *Router) UploadFilehandler(c *gin.Context) {
 	log.Println("Upload endpoint hit")
 	// Get username from middleware (set in context)
@@ -18,7 +32,7 @@ func (r *Router) UploadFilehandler(c *gin.Context) {
 		return
 	}
 	// Get the uploaded_file
-	file, _, err := c.Request.FormFile("uploadedFile")
+	file, _, err := c.Request.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read Uploaded file"})
 		return

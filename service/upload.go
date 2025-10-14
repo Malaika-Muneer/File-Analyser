@@ -7,6 +7,17 @@ import (
 	"github.com/malaika-muneer/File-Analyser/models"
 )
 
+// UploadFilehandler godoc
+// @Summary      Upload and analyze a file
+// @Description  Uploads a file for analysis (requires authentication)
+// @Tags         File
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file  formData  file  true  "File to upload"
+// @Security     BearerAuth
+// @Success      200  {object}  models.FileAnalysis
+// @Failure      400  {string}  string  "Bad request"
+// @Router       /upload [post]
 // Handle file upload, analyze it, and return JSON response
 func (s *UserServiceImpl) UploadFile(fileContent []byte, Username string, id int) (models.FileAnalysis, error) {
 	analysisCh := make(chan models.FileAnalysis)

@@ -8,6 +8,16 @@ import (
 	"github.com/malaika-muneer/File-Analyser/models"
 )
 
+// @Summary      User SignIn
+// @Description  Authenticate a user and return a JWT token
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        credentials  body  models.SignIn  true  "User credentials"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Router       /signin [post]
 func (r *Router) SignInHandler(c *gin.Context) {
 	var signInData models.SignIn
 	if err := c.ShouldBindJSON(&signInData); err != nil {

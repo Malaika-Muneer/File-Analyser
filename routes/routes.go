@@ -7,6 +7,7 @@ import (
 )
 
 func (r *Router) SetupRoutes(gin *gin.Engine) {
+
 	gin.POST("/signup", r.SignupHandler)
 	gin.POST("/signin", r.SignInHandler)
 	auth := gin.Group("/")

@@ -5,11 +5,23 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/malaika-muneer/File-Analyser/db"
+	_ "github.com/malaika-muneer/File-Analyser/docs"
 	"github.com/malaika-muneer/File-Analyser/routes"
 	"github.com/malaika-muneer/File-Analyser/service"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title File Analyser
+// @version 2.0
+// @description This is a file analyser application API built with Go and Gin.
+// @host localhost:8005
+// @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	conn := db.ConnectDB()
 	dao := db.NewDao(conn)
@@ -26,6 +38,7 @@ func main() {
 
 	// Initialize Gin router
 	r := gin.Default()
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	userService := service.NewUserService(dao)
 	router := routes.NewRouter(userService)
 	// Setup routes (signup, login, file upload, etc.)
