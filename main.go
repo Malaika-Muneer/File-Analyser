@@ -43,6 +43,21 @@ func main() {
 	router := routes.NewRouter(userService)
 	// Setup routes (signup, login, file upload, etc.)
 	router.SetupRoutes(r)
+	r.Static("/frontend", "./frontend")
+	// Serve HTML pages for root paths
+	r.GET("/", func(c *gin.Context) {
+		c.File("./frontend/index.html")
+	})
+	r.GET("/signup.html", func(c *gin.Context) {
+		c.File("./frontend/signup.html")
+	})
+	r.GET("/signin.html", func(c *gin.Context) {
+		c.File("./frontend/signin.html")
+	})
+	r.GET("/upload.html", func(c *gin.Context) {
+		c.File("./frontend/upload.html")
+	})
+
 	// Start server
 	fmt.Println("Server started at http://localhost:8005")
 	if err := r.Run(":8005"); err != nil {

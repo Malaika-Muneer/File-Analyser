@@ -1,0 +1,62 @@
+body {
+  font-family: "Poppins", sans-serif;
+  background: #f5f7fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.container, .form-container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 320px;
+}
+
+h1, h2 {
+  color: #333;
+}
+
+input[type="text"], input[type="password"], input[type="email"], input[type="file"] {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* Style for all buttons */
+button {
+  background-color: #007bff;  /* Blue color */
+  color: white;               /* White text */
+  border: none;               /* Remove default border */
+  padding: 12px 25px;         /* Bigger padding for nicer look */
+  border-radius: 8px;         /* Rounded corners */
+  cursor: pointer;            /* Pointer on hover */
+  font-size: 16px;            /* Slightly bigger font */
+  transition: background 0.3s ease; /* Smooth hover transition */
+}
+
+/* Hover effect */
+button:hover {
+  background-color: #0056b3;  /* Darker blue on hover */
+}
+
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.nav a {
+  margin: 10px;
+  display: inline-block;
+}
+button {
+  width: 90%;   /* same as input fields */
+  display: block;
+  margin: 10px auto;
+}

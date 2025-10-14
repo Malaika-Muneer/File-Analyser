@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Analyser</title>
+  
+  <link rel="stylesheet" href="/frontend/style.css" />
+
+</head>
+<body>
+  <div class="container">
+    <h1>File Analyser</h1>
+    <p>Welcome to the File Analyser App</p>
+
+    <!-- Navigation -->
+    <div class="nav">
+      <a href="signup.html">Sign Up</a>
+      <a href="signin.html">Sign In</a>
+      <a href="upload.html">Upload File</a>
+    </div>
+
+    <!-- Optional Messages -->
+    <div id="homeMsg" style="margin-top: 20px; color: green;"></div>
+
+    <!-- Quick Links for Logged-in Users -->
+    <div id="userLinks" style="margin-top: 20px; display: none;">
+      <p>Welcome back! You can go directly to:</p>
+      <a href="upload.html">Upload File</a>
+      <button id="logoutBtn" style="margin-left: 10px;">Logout</button>
+    </div>
+  </div>
+
+  <script>
+    // Check if user is already logged in
+    const token = localStorage.getItem("jwtToken");
+    if (token) {
+      document.getElementById("userLinks").style.display = "block";
+      document.getElementById("homeMsg").innerText = "You are already logged in!";
+      
+      // Logout functionality
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.removeItem("jwtToken");
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
