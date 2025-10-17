@@ -1,79 +1,79 @@
 package service
 
 import (
+	"log"
 	"strings"
 	"unicode"
 
 	"github.com/malaika-muneer/File-Analyser/models"
 )
 
-// UploadFilehandler godoc
-// @Summary      Upload and analyze a file
-// @Description  Uploads a file for analysis (requires authentication)
-// @Tags         File
-// @Accept       multipart/form-data
-// @Produce      json
-// @Param        file  formData  file  true  "File to upload"
-// @Security     BearerAuth
-// @Success      200  {object}  models.FileAnalysis
-// @Failure      400  {string}  string  "Bad request"
-// @Router       /upload [post]
-// Handle file upload, analyze it, and return JSON response
-func (s *UserServiceImpl) UploadFile(fileContent []byte, Username string, id int) (models.FileAnalysis, error) {
-	analysisCh := make(chan models.FileAnalysis)
-	go analyzeFileConcurrently(fileContent, analysisCh)
-	analysis := <-analysisCh
-	analysis.Username = Username
-	analysis.Id = id
+func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int) ([]models.FileAnalysis, error) {
+	chunkSize := 1024 // 1KB per chunk
+	var analyses []models.FileAnalysis
 
-	err := s.Dao.InsertAnalysisData(analysis)
-	if err != nil {
-		return models.FileAnalysis{}, err
+	totalChunks := (len(fileContent) + chunkSize - 1) / chunkSize
+
+	for i := 0; i < totalChunks; i++ {
+		start := i * chunkSize
+		end := start + chunkSize
+		if end > len(fileContent) {
+			end = len(fileContent)
+		}
+
+		chunk := fileContent[start:end]
+		analysis := analyzeFile(chunk)
+
+		analysis.Username = username
+		analysis.Id = id
+		analysis.ChunkNumber = i + 1
+		log.Println("Inserting for user ID:", id)
+
+		if err := s.Dao.InsertAnalysisData(analysis); err != nil {
+			return nil, err
+		}
+
+		analyses = append(analyses, analysis)
 	}
 
-	return analysis, nil
+	return analyses, nil
 }
 
-// Function to analyze the file content concurrently
-func analyzeFileConcurrently(content []byte, ch chan models.FileAnalysis) {
-	analysis := analyzeFile(content)
-	ch <- analysis
-}
-
-// Function to analyze the file content and return the analysis
 func analyzeFile(content []byte) models.FileAnalysis {
 	var analysis models.FileAnalysis
 
 	for _, char := range content {
-		runeChar := rune(char)
+		r := rune(char)
 
-		if unicode.IsSpace(runeChar) {
+		if unicode.IsSpace(r) {
 			analysis.Spaces++
 		}
 
-		if unicode.IsLetter(runeChar) {
+		if unicode.IsLetter(r) {
 			analysis.Letters++
-			if unicode.IsUpper(runeChar) {
+			if unicode.IsUpper(r) {
 				analysis.UpperCase++
-			} else if unicode.IsLower(runeChar) {
+			} else {
 				analysis.LowerCase++
 			}
 		}
-		if unicode.IsDigit(runeChar) {
+
+		if unicode.IsDigit(r) {
 			analysis.Digits++
 		}
-		if isVowel(runeChar) {
+
+		if isVowel(r) {
 			analysis.Vowels++
-		} else if unicode.IsLetter(runeChar) {
+		} else if unicode.IsLetter(r) {
 			analysis.Consonants++
 		}
-		if !unicode.IsLetter(runeChar) && !unicode.IsDigit(runeChar) && !unicode.IsSpace(runeChar) {
+
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && !unicode.IsSpace(r) {
 			analysis.SpecialChars++
 		}
 	}
 
 	analysis.TotalChars = len(content)
-
 	return analysis
 }
 

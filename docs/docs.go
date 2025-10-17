@@ -120,7 +120,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Uploads a file for analysis (requires authentication)",
+                "description": "Allows an authenticated user to upload a file for analysis. The file is split into chunks, and each chunk is analyzed separately.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -134,7 +134,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "file",
-                        "description": "File to upload",
+                        "description": "File to be uploaded",
                         "name": "file",
                         "in": "formData",
                         "required": true
@@ -142,15 +142,37 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "File uploaded successfully with chunked analysis",
                         "schema": {
-                            "$ref": "#/definitions/models.FileAnalysis"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "Failed to read uploaded file",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not found or unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -158,47 +180,12 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.FileAnalysis": {
-            "type": "object",
-            "properties": {
-                "consonants": {
-                    "type": "integer"
-                },
-                "digits": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "letters": {
-                    "type": "integer"
-                },
-                "lower_case": {
-                    "type": "integer"
-                },
-                "spaces": {
-                    "type": "integer"
-                },
-                "special_chars": {
-                    "type": "integer"
-                },
-                "total_hars": {
-                    "type": "integer"
-                },
-                "upper_case": {
-                    "type": "integer"
-                },
-                "username": {
-                    "type": "string"
-                },
-                "vowels": {
-                    "type": "integer"
-                }
-            }
-        },
         "models.SignIn": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "password": {
                     "type": "string"
                 },
@@ -212,6 +199,9 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "password": {
                     "type": "string"

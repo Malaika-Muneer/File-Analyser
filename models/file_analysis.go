@@ -13,6 +13,7 @@ type FileAnalysis struct {
 	LowerCase    int    `json:"lower_case"`
 	Spaces       int    `json:"spaces"`
 	TotalChars   int    `json:"total_hars"`
+	ChunkNumber  int    `json:"chunk_number" db:"chunk_number"`
 }
 
 // User struct represents a user for sign-up

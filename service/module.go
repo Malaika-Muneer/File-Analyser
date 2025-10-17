@@ -8,8 +8,9 @@ import (
 type UserService interface {
 	SignupUser(user models.User) error
 	AuthenticateUser(usernameOrEmail, password string) (*models.User, error)
-	UploadFile(fileContent []byte, Username string, id int) (models.FileAnalysis, error)
+	UploadFile(fileContent []byte, username string, id int) ([]models.FileAnalysis, error)
 }
+
 type UserServiceImpl struct {
 	Dao db.DaoLayer
 }

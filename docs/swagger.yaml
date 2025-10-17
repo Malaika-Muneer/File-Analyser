@@ -1,30 +1,5 @@
 basePath: /
 definitions:
-  models.FileAnalysis:
-    properties:
-      consonants:
-        type: integer
-      digits:
-        type: integer
-      id:
-        type: integer
-      letters:
-        type: integer
-      lower_case:
-        type: integer
-      spaces:
-        type: integer
-      special_chars:
-        type: integer
-      total_hars:
-        type: integer
-      upper_case:
-        type: integer
-      username:
-        type: string
-      vowels:
-        type: integer
-    type: object
   models.SignIn:
     properties:
       id:
@@ -122,9 +97,10 @@ paths:
     post:
       consumes:
       - multipart/form-data
-      description: Uploads a file for analysis (requires authentication)
+      description: Allows an authenticated user to upload a file for analysis. The
+        file is split into chunks, and each chunk is analyzed separately.
       parameters:
-      - description: File to upload
+      - description: File to be uploaded
         in: formData
         name: file
         required: true
@@ -133,13 +109,28 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: File uploaded successfully with chunked analysis
           schema:
-            $ref: '#/definitions/models.FileAnalysis'
+            additionalProperties: true
+            type: object
         "400":
-          description: Bad request
+          description: Failed to read uploaded file
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: User not found or unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       security:
       - BearerAuth: []
       summary: Upload and analyze a file
