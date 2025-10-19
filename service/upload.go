@@ -3,18 +3,25 @@ package service
 import (
 	"log"
 	"strings"
+	"sync"
+	"time"
 	"unicode"
 
 	"github.com/malaika-muneer/File-Analyser/models"
 )
 
-func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int) ([]models.FileAnalysis, error) {
-	chunkSize := 1024 // 1KB per chunk
-	var analyses []models.FileAnalysis
+// UploadFile analyzes the file in both sequential and concurrent ways
+func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int, numChunks int) (map[string]interface{}, error) {
+	if numChunks < 1 {
+		numChunks = 1
+	}
 
-	totalChunks := (len(fileContent) + chunkSize - 1) / chunkSize
+	chunkSize := (len(fileContent) + numChunks - 1) / numChunks
+	var sequentialAnalyses []models.FileAnalysis
 
-	for i := 0; i < totalChunks; i++ {
+	// ----------- Case 1: Sequential -----------
+	startSeq := time.Now()
+	for i := 0; i < numChunks; i++ {
 		start := i * chunkSize
 		end := start + chunkSize
 		if end > len(fileContent) {
@@ -27,18 +34,57 @@ func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int
 		analysis.Username = username
 		analysis.Id = id
 		analysis.ChunkNumber = i + 1
-		log.Println("Inserting for user ID:", id)
 
 		if err := s.Dao.InsertAnalysisData(analysis); err != nil {
 			return nil, err
 		}
 
-		analyses = append(analyses, analysis)
+		sequentialAnalyses = append(sequentialAnalyses, analysis)
+	}
+	execTimeSequential := time.Since(startSeq).Milliseconds() // in milliseconds
+
+	// ----------- Case 2: Concurrent using Goroutines -----------
+	startConcurrent := time.Now()
+	concurrentAnalyses := make([]models.FileAnalysis, numChunks)
+	var wg sync.WaitGroup
+	wg.Add(numChunks)
+
+	for i := 0; i < numChunks; i++ {
+		go func(i int) {
+			defer wg.Done()
+			start := i * chunkSize
+			end := start + chunkSize
+			if end > len(fileContent) {
+				end = len(fileContent)
+			}
+			chunk := fileContent[start:end]
+			analysis := analyzeFile(chunk)
+
+			analysis.Username = username
+			analysis.Id = id
+			analysis.ChunkNumber = i + 1
+			concurrentAnalyses[i] = analysis
+
+			// Optional: Insert into DB sequentially
+			if err := s.Dao.InsertAnalysisData(analysis); err != nil {
+				log.Println("Error inserting analysis in goroutine:", err)
+			}
+		}(i)
 	}
 
-	return analyses, nil
+	wg.Wait()
+	execTimeConcurrent := time.Since(startConcurrent).Milliseconds() // in milliseconds
+
+	// Return both analyses and execution times
+	return map[string]interface{}{
+		"sequential": sequentialAnalyses,
+		"concurrent": concurrentAnalyses,
+		"timeSeq":    execTimeSequential,
+		"timeCon":    execTimeConcurrent,
+	}, nil
 }
 
+// analyzeFile remains same
 func analyzeFile(content []byte) models.FileAnalysis {
 	var analysis models.FileAnalysis
 
@@ -73,10 +119,11 @@ func analyzeFile(content []byte) models.FileAnalysis {
 		}
 	}
 
-	analysis.TotalChars = len(content)
+	analysis.TotalChars = analysis.Letters + analysis.Digits + analysis.Spaces + analysis.SpecialChars
 	return analysis
 }
 
+// isVowel remains same
 func isVowel(r rune) bool {
 	vowels := "aeiouAEIOU"
 	return strings.ContainsRune(vowels, r)

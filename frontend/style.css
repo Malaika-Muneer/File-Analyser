@@ -1,62 +1,403 @@
+/* ========== GENERAL RESET ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ========== GLOBAL STYLES ========== */
 body {
   font-family: "Poppins", sans-serif;
-  background: #f5f7fa;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
+  align-items: flex-start;
+  padding: 50px 20px;
+  line-height: 1.6;
 }
 
-.container, .form-container {
-  background: #fff;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+/* ========== HOME PAGE STYLING (NEW DESIGN) ========== */
+.home-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 1100px;
+  padding: 50px 60px;
+  animation: fadeIn 0.8s ease;
+}
+
+/* Header Section */
+.main-header {
   text-align: center;
-  width: 320px;
+  margin-bottom: 50px;
 }
 
-h1, h2 {
+.main-header h1 {
+  font-size: 3.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+}
+
+.sub-heading {
+  font-size: 1.1rem;
+  color: #4a5568;
+}
+
+/* Main Content Layout */
+.main-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+/* Left Box (Info Section) */
+.info-box {
+  flex: 1;
+  min-width: 300px;
+  background: #f8fafc;
+  padding: 40px 35px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+}
+
+.info-box h2 {
+  font-size: 1.8rem;
+  color: #2d3748;
+  margin-bottom: 20px;
+}
+
+.info-box p {
+  font-size: 1rem;
+  color: #4a5568;
+  margin-bottom: 20px;
+  line-height: 1.8;
+}
+
+.features {
+  list-style: none;
+}
+
+.features li {
+  background: #fff;
+  margin: 8px 0;
+  padding: 10px 15px;
+  border-left: 4px solid #667eea;
+  border-radius: 8px;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+/* Right Box (Buttons Section) */
+.action-box {
+  flex: 1;
+  min-width: 300px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 40px 35px;
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.guide-text {
+  font-size: 1rem;
+  color: #4a5568;
+  margin: 10px 0;
+}
+
+.btn,
+.btn-outline {
+  display: inline-block;
+  padding: 14px 30px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
+  width: 80%;
+  max-width: 250px;
+}
+
+.btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(118, 75, 162, 0.4);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid #667eea;
+  color: #667eea;
+}
+
+.btn-outline:hover {
+  background: #667eea;
+  color: white;
+}
+
+/* Logged In View */
+.logged-in-view {
+  margin-top: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 25px;
+}
+
+.welcome-back {
+  color: #667eea;
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 1.2rem;
+}
+
+.welcome-message {
+  color: #4a5568;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* Smooth Fade Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== AUTH PAGES (SIGN IN / SIGN UP) ========== */
+.auth-container {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  width: 850px;
+  max-width: 90%;
+}
+
+.auth-left {
+ 
+  color: white;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.auth-left h1 {
+  font-size: 2.2rem;
+  margin-bottom: 15px;
+}
+
+.auth-left p {
+  font-size: 1rem;
+  opacity: 0.9;
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+.auth-right {
+  flex: 1;
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-right h2 {
+  text-align: center;
+  margin-bottom: 20px;
   color: #333;
 }
 
-input[type="text"], input[type="password"], input[type="email"], input[type="file"] {
-  width: 90%;
-  padding: 10px;
+/* Inputs */
+.input-group input,
+input[type="file"],
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px;
   margin: 10px 0;
-  border: 1px solid #ccc;
   border-radius: 8px;
+  border: 1px solid #926de7;
+  font-size: 15px;
 }
 
-/* Style for all buttons */
-button {
-  background-color: #007bff;  /* Blue color */
-  color: white;               /* White text */
-  border: none;               /* Remove default border */
-  padding: 12px 25px;         /* Bigger padding for nicer look */
-  border-radius: 8px;         /* Rounded corners */
-  cursor: pointer;            /* Pointer on hover */
-  font-size: 16px;            /* Slightly bigger font */
-  transition: background 0.3s ease; /* Smooth hover transition */
+.input-group input:focus,
+input:focus {
+  border-color: #15a2df;
+  outline: none;
 }
 
-/* Hover effect */
-button:hover {
-  background-color: #0056b3;  /* Darker blue on hover */
+/* Buttons */
+button,
+.btn-primary {
+  width: 100%;
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
 }
 
-a {
-  color: #007bff;
+button:hover,
+.btn-primary:hover {
+  background-color: #926de7;
+}
+
+/* Message + Links */
+.msg {
+  text-align: center;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.switch-link {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.switch-link a {
+  color: #560d7b;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.switch-link a:hover {
+  text-decoration: underline;
+}
+
+/* ========== UPLOAD PAGE ========== */
+.form-container {
+  width: 450px;
+  padding: 40px;
+  text-align: center;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.form-container h2 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.form-container h3 {
+  color: #444;
+  margin-top: 20px;
+}
+
+pre#uploadResults {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: left;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.form-container a {
+  display: inline-block;
+  margin-top: 15px;
+  color: #333;
   text-decoration: none;
 }
 
-.nav a {
-  margin: 10px;
-  display: inline-block;
+.form-container a:hover {
+  text-decoration: underline;
 }
-button {
-  width: 90%;   /* same as input fields */
-  display: block;
-  margin: 10px auto;
+/* ====== UPLOAD RESULT TABLES ====== */
+.chunk-table {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+  padding: 20px;
+  animation: fadeIn 0.6s ease;
+}
+
+.chunk-table h3 {
+  color: #667eea;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.result-table th,
+.result-table td {
+  border: 1px solid #e2e8f0;
+  padding: 10px 15px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.result-table th {
+  background-color: #f3f4f6;
+  color: #333;
+  font-weight: 600;
+}
+
+.result-table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 900px) {
+  .main-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .info-box,
+  .action-box {
+    width: 100%;
+  }
+
+  .home-container {
+    padding: 40px 25px;
+  }
+
+  .main-header h1 {
+    font-size: 2.4rem;
+  }
 }

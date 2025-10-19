@@ -1,34 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload File</title>
-  <link rel="stylesheet" href="/frontend/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload File - File Analyser</title>
+  <link rel="stylesheet" href="/frontend/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a2e0e6c5d2.js" crossorigin="anonymous"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    .container { max-width: 900px; margin: 40px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; margin-bottom: 20px; }
+    .input-group { margin-bottom: 15px; }
+    .input-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+    .btn-primary { display: block; width: 100%; padding: 10px; background-color: #6480fc; color: #070707; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    .btn-primary:hover { background-color: #775cee; }
+    .msg { margin-top: 20px; white-space: pre-wrap; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #1b1a1a; padding: 8px; text-align: center; }
+    th { background-color: #704dcf; color: rgb(30, 29, 29); }
+    tr:nth-child(even) { background-color: #ddd; }
+    tr:hover { background-color: #ddd; }
+  </style>
 </head>
+
 <body>
-  <div class="form-container">
-    <h2>Upload File</h2>
-    <form id="uploadForm" enctype="multipart/form-data">
+<div class="container">
+  <h2><i class="fa-solid fa-file-arrow-up"></i> Upload & Analyse File</h2>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <div class="input-group">
+      <label for="fileInput">Select File</label>
       <input type="file" id="fileInput" name="file" required />
-      <button type="submit">Upload</button>
-    </form>
+    </div>
+    <div class="input-group">
+      <label for="numChunksInput">Number of Chunks</label>
+      <input type="number" id="numChunksInput" name="numChunks" required min="1" value="1" />
+    </div>
+    <button type="submit" class="btn-primary">Upload & Analyse</button>
+  </form>
 
-    <h3>Response (JSON):</h3>
-    <pre id="uploadResults" style="
-      background: #f5f5f5;
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-      border-radius: 5px;
-      margin-top: 15px;
-      white-space: pre-wrap;
-      overflow-x: auto;
-    "></pre>
+  <div id="uploadResults" class="msg"></div>
+</div>
 
-    <a href="/">Back to Home</a>
-  </div>
+<script>
+document.getElementById('uploadForm').onsubmit = async function(e) {
+  e.preventDefault();
 
-  <script src="/frontend/script.js"></script>
+  const token = localStorage.getItem('token');
+  if (!token) return document.getElementById('uploadResults').textContent = 'Error: You must login first.';
+
+  const file = document.getElementById('fileInput').files[0];
+  const numChunks = parseInt(document.getElementById('numChunksInput').value) || 1;
+  if (!file) return alert("Please select a file");
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("numChunks", numChunks);
+
+  const resultsDiv = document.getElementById('uploadResults');
+  resultsDiv.textContent = 'Analyzing file, please wait...';
+
+  try {
+    const response = await fetch('/upload', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      resultsDiv.textContent = 'Error: ' + (data.error || 'Something went wrong');
+      return;
+    }
+
+    const chunks = data.sequential || [];
+    if (chunks.length === 0) {
+      resultsDiv.textContent = 'No analysis results available.';
+      return;
+    }
+
+    // Show execution times
+    let execTimeHTML = `
+      <p><strong>Execution Time (without go_routine ):</strong> ${data.timeSequential} ms</p>
+      <p><strong>Execution Time (with go_routine):</strong> ${data.timeConcurrent} ms</p>
+    `;
+
+    // Create table HTML
+    let tableHTML = '<table><thead><tr>' +
+      '<th>Chunk #</th><th>Total Chars</th><th>Letters</th><th>Uppercase</th><th>Lowercase</th>' +
+      '<th>Digits</th><th>Vowels</th><th>Consonants</th><th>Spaces</th><th>Special Chars</th>' +
+      '</tr></thead><tbody>';
+
+    chunks.forEach(chunk => {
+      const totalChars = chunk.letters + chunk.digits + chunk.spaces + chunk.special_chars;
+
+      tableHTML += '<tr>' +
+        `<td>${chunk.chunk_number}</td>` +
+        `<td>${totalChars}</td>` +
+        `<td>${chunk.letters}</td>` +
+        `<td>${chunk.upper_case}</td>` +
+        `<td>${chunk.lower_case}</td>` +
+        `<td>${chunk.digits}</td>` +
+        `<td>${chunk.vowels}</td>` +
+        `<td>${chunk.consonants}</td>` +
+        `<td>${chunk.spaces}</td>` +
+        `<td>${chunk.special_chars}</td>` +
+        '</tr>';
+    });
+
+    tableHTML += '</tbody></table>';
+    resultsDiv.innerHTML = execTimeHTML + tableHTML;
+
+  } catch (err) {
+    resultsDiv.textContent = 'Error: ' + err.message;
+  }
+};
+</script>
 </body>
 </html>
