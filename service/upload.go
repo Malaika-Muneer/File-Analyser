@@ -2,6 +2,7 @@ package service
 
 import (
 	"log"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"github.com/malaika-muneer/File-Analyser/models"
 )
 
-// UploadFile analyzes the file in both sequential and concurrent ways
 func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int, numChunks int) (map[string]interface{}, error) {
 	if numChunks < 1 {
 		numChunks = 1
@@ -19,7 +19,7 @@ func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int
 	chunkSize := (len(fileContent) + numChunks - 1) / numChunks
 	var sequentialAnalyses []models.FileAnalysis
 
-	// ----------- Case 1: Sequential -----------
+	// ----------- Sequential (inline analysis) -----------
 	startSeq := time.Now()
 	for i := 0; i < numChunks; i++ {
 		start := i * chunkSize
@@ -28,103 +28,118 @@ func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int
 			end = len(fileContent)
 		}
 
-		chunk := fileContent[start:end]
-		analysis := analyzeFile(chunk)
+		// Inline analysis (no separate function)
+		var a models.FileAnalysis
+		for _, char := range fileContent[start:end] {
+			r := rune(char)
 
-		analysis.Username = username
-		analysis.Id = id
-		analysis.ChunkNumber = i + 1
-
-		if err := s.Dao.InsertAnalysisData(analysis); err != nil {
-			return nil, err
+			if unicode.IsSpace(r) {
+				a.Spaces++
+			}
+			if unicode.IsLetter(r) {
+				a.Letters++
+				if unicode.IsUpper(r) {
+					a.UpperCase++
+				} else {
+					a.LowerCase++
+				}
+			}
+			if unicode.IsDigit(r) {
+				a.Digits++
+			}
+			if strings.ContainsRune("aeiouAEIOU", r) {
+				a.Vowels++
+			} else if unicode.IsLetter(r) {
+				a.Consonants++
+			}
+			if !unicode.IsLetter(r) && !unicode.IsDigit(r) && !unicode.IsSpace(r) {
+				a.SpecialChars++
+			}
 		}
 
-		sequentialAnalyses = append(sequentialAnalyses, analysis)
-	}
-	execTimeSequential := time.Since(startSeq).Milliseconds() // in milliseconds
+		a.TotalChars = a.Letters + a.Digits + a.Spaces + a.SpecialChars
+		a.Username = username
+		a.Id = id
+		a.ChunkNumber = i + 1
 
-	// ----------- Case 2: Concurrent using Goroutines -----------
+		if err := s.Dao.InsertAnalysisData(a); err != nil {
+			return nil, err
+		}
+		sequentialAnalyses = append(sequentialAnalyses, a)
+	}
+	execTimeSequential := time.Since(startSeq).Milliseconds()
+
+	// ----------- Concurrent (inline function) -----------
+	runtime.GOMAXPROCS(runtime.NumCPU()) // use all CPU cores
+
 	startConcurrent := time.Now()
-	concurrentAnalyses := make([]models.FileAnalysis, numChunks)
 	var wg sync.WaitGroup
 	wg.Add(numChunks)
 
+	results := make([]models.FileAnalysis, numChunks)
+
 	for i := 0; i < numChunks; i++ {
-		go func(i int) {
+		i := i // capture variable for goroutine
+		go func() {
 			defer wg.Done()
 			start := i * chunkSize
 			end := start + chunkSize
 			if end > len(fileContent) {
 				end = len(fileContent)
 			}
-			chunk := fileContent[start:end]
-			analysis := analyzeFile(chunk)
 
-			analysis.Username = username
-			analysis.Id = id
-			analysis.ChunkNumber = i + 1
-			concurrentAnalyses[i] = analysis
+			var a models.FileAnalysis
+			for _, char := range fileContent[start:end] {
+				r := rune(char)
 
-			// Optional: Insert into DB sequentially
-			if err := s.Dao.InsertAnalysisData(analysis); err != nil {
-				log.Println("Error inserting analysis in goroutine:", err)
+				if unicode.IsSpace(r) {
+					a.Spaces++
+				}
+				if unicode.IsLetter(r) {
+					a.Letters++
+					if unicode.IsUpper(r) {
+						a.UpperCase++
+					} else {
+						a.LowerCase++
+					}
+				}
+				if unicode.IsDigit(r) {
+					a.Digits++
+				}
+				if strings.ContainsRune("aeiouAEIOU", r) {
+					a.Vowels++
+				} else if unicode.IsLetter(r) {
+					a.Consonants++
+				}
+				if !unicode.IsLetter(r) && !unicode.IsDigit(r) && !unicode.IsSpace(r) {
+					a.SpecialChars++
+				}
 			}
-		}(i)
+
+			a.TotalChars = a.Letters + a.Digits + a.Spaces + a.SpecialChars
+			a.Username = username
+			a.Id = id
+			a.ChunkNumber = i + 1
+
+			results[i] = a
+		}()
 	}
 
 	wg.Wait()
-	execTimeConcurrent := time.Since(startConcurrent).Milliseconds() // in milliseconds
 
-	// Return both analyses and execution times
-	return map[string]interface{}{
-		"sequential": sequentialAnalyses,
-		"concurrent": concurrentAnalyses,
-		"timeSeq":    execTimeSequential,
-		"timeCon":    execTimeConcurrent,
-	}, nil
-}
-
-// analyzeFile remains same
-func analyzeFile(content []byte) models.FileAnalysis {
-	var analysis models.FileAnalysis
-
-	for _, char := range content {
-		r := rune(char)
-
-		if unicode.IsSpace(r) {
-			analysis.Spaces++
-		}
-
-		if unicode.IsLetter(r) {
-			analysis.Letters++
-			if unicode.IsUpper(r) {
-				analysis.UpperCase++
-			} else {
-				analysis.LowerCase++
-			}
-		}
-
-		if unicode.IsDigit(r) {
-			analysis.Digits++
-		}
-
-		if isVowel(r) {
-			analysis.Vowels++
-		} else if unicode.IsLetter(r) {
-			analysis.Consonants++
-		}
-
-		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && !unicode.IsSpace(r) {
-			analysis.SpecialChars++
+	// Insert sequentially (after all concurrent work)
+	for _, a := range results {
+		if err := s.Dao.InsertAnalysisData(a); err != nil {
+			log.Println("DB insert error:", err)
 		}
 	}
 
-	analysis.TotalChars = analysis.Letters + analysis.Digits + analysis.Spaces + analysis.SpecialChars
-	return analysis
-}
+	execTimeConcurrent := time.Since(startConcurrent).Milliseconds()
 
-// isVowel remains same
-func isVowel(r rune) bool {
-	vowels := "aeiouAEIOU"
-	return strings.ContainsRune(vowels, r)
+	return map[string]interface{}{
+		"sequential": sequentialAnalyses,
+		"concurrent": results,
+		"timeSeq":    execTimeSequential,
+		"timeCon":    execTimeConcurrent,
+	}, nil
 }

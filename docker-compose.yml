@@ -7,30 +7,45 @@ services:
     ports:
       - "8005:8005"
     depends_on:
-      - db
+      - mysql-db
+      - mongo-db
     environment:
+      # MySQL environment (if still used)
       - DB_USER=root
       - DB_PASS=1234
       - DB_NAME=file_analyser
-      - DB_HOST=db
+      - DB_HOST=mysql-db
       - DB_PORT=3306
+
+      # MongoDB environment
+      - MONGO_URI=mongodb://mongo-db:27017
+      - MONGO_DB=file_analyser
+
     networks:
       - app-network
 
-  db:
+  mysql-db:
     image: mysql:latest
     container_name: mysql-db
     restart: always
     environment:
-      - DB_USER=root
-      - DB_PASS=1234
-      - DB_NAME=file_analyser
-      - DB_HOST=db
-      - DB_PORT=3306
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=file_analyser
     expose:
       - "3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  mongo-db:
+    image: mongo:latest
+    container_name: mongo-db
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
     networks:
       - app-network
 
@@ -50,4 +65,5 @@ networks:
   app-network:
 
 volumes:
-  db_data:
+  mysql_data:
+  mongo_data:
