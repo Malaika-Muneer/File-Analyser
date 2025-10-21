@@ -40,11 +40,3 @@ func ConnectDB() *sql.DB {
 	return DB
 
 }
-
-// // GetDB returns the database instance
-// func GetDB() *sql.DB {
-// 	if DB == nil {
-// 		log.Fatal("Database connection is not initialized. Call ConnectDB() first.")
-// 	}
-// 	return DB
-// }

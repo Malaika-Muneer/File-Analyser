@@ -11,7 +11,7 @@ import (
 	"github.com/malaika-muneer/File-Analyser/models"
 )
 
-func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int, numChunks int) (map[string]interface{}, error) {
+func (s *UploadService) UploadFile(fileContent []byte, username string, id int, numChunks int) (map[string]interface{}, error) {
 	if numChunks < 1 {
 		numChunks = 1
 	}
@@ -19,7 +19,7 @@ func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int
 	chunkSize := (len(fileContent) + numChunks - 1) / numChunks
 	var sequentialAnalyses []models.FileAnalysis
 
-	// ----------- Sequential (inline analysis) -----------
+	// ----------- Sequential Analysis -----------
 	startSeq := time.Now()
 	for i := 0; i < numChunks; i++ {
 		start := i * chunkSize
@@ -28,7 +28,6 @@ func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int
 			end = len(fileContent)
 		}
 
-		// Inline analysis (no separate function)
 		var a models.FileAnalysis
 		for _, char := range fileContent[start:end] {
 			r := rune(char)
@@ -62,15 +61,17 @@ func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int
 		a.Id = id
 		a.ChunkNumber = i + 1
 
-		if err := s.Dao.InsertAnalysisData(a); err != nil {
+		// ✅ Store in MongoDB
+		if err := s.MongoDAO.InsertAnalysisData(a); err != nil {
 			return nil, err
 		}
+
 		sequentialAnalyses = append(sequentialAnalyses, a)
 	}
 	execTimeSequential := time.Since(startSeq).Milliseconds()
 
-	// ----------- Concurrent (inline function) -----------
-	runtime.GOMAXPROCS(runtime.NumCPU()) // use all CPU cores
+	// ----------- Concurrent Analysis -----------
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	startConcurrent := time.Now()
 	var wg sync.WaitGroup
@@ -79,7 +80,7 @@ func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int
 	results := make([]models.FileAnalysis, numChunks)
 
 	for i := 0; i < numChunks; i++ {
-		i := i // capture variable for goroutine
+		i := i
 		go func() {
 			defer wg.Done()
 			start := i * chunkSize
@@ -127,10 +128,10 @@ func (s *UserServiceImpl) UploadFile(fileContent []byte, username string, id int
 
 	wg.Wait()
 
-	// Insert sequentially (after all concurrent work)
+	// ✅ Insert concurrently calculated data into MongoDB
 	for _, a := range results {
-		if err := s.Dao.InsertAnalysisData(a); err != nil {
-			log.Println("DB insert error:", err)
+		if err := s.MongoDAO.InsertAnalysisData(a); err != nil {
+			log.Println("Mongo insert error:", err)
 		}
 	}
 

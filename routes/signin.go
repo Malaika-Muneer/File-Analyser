@@ -24,16 +24,19 @@ func (r *Router) SignInHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
-	user, err := r.userService.AuthenticateUser(signInData.Username, signInData.Password) // Call service layer for authentication
+
+	user, err := r.UserService.AuthenticateUser(signInData.Username, signInData.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
-	token, err := middleware.GenerateJWT(user.Username, user.Id) // Generate JWT token
+
+	token, err := middleware.GenerateJWT(user.Username, user.Id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error generating token"})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "login successful",
 		"token":   token,

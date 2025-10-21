@@ -4,13 +4,14 @@ services:
       context: .               # Build backend from the current directory
       dockerfile: Dockerfile   # Use the Dockerfile in this directory
     container_name: file-analyser-backend
+    restart: unless-stopped      
     ports:
       - "8005:8005"
     depends_on:
       - mysql-db
       - mongo-db
     environment:
-      # MySQL environment (if still used)
+      # MySQL environment
       - DB_USER=root
       - DB_PASS=1234
       - DB_NAME=file_analyser
@@ -18,7 +19,7 @@ services:
       - DB_PORT=3306
 
       # MongoDB environment
-      - MONGO_URI=mongodb://mongo-db:27017
+      - MONGO_URI=mongodb://mongo-db:27017/file_analyser
       - MONGO_DB=file_analyser
 
     networks:
@@ -26,24 +27,28 @@ services:
 
   mysql-db:
     image: mysql:latest
+    platform: linux/amd64  # Add platform here too
     container_name: mysql-db
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=1234
       - MYSQL_DATABASE=file_analyser
-    expose:
-      - "3306"
+    ports:
+      - "3307:3306"  # Change from expose to ports for external access
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - app-network
 
   mongo-db:
-    image: mongo:latest
+    image: mongo:6.0.5  # Use specific version instead of latest
+    platform: linux/amd64
     container_name: mongo-db
     restart: always
     ports:
       - "27017:27017"
+    environment:  # Add MongoDB authentication
+      - MONGO_INITDB_DATABASE=file_analyser
     volumes:
       - mongo_data:/data/db
     networks:

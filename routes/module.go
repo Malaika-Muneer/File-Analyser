@@ -1,14 +1,17 @@
 package routes
 
-import "github.com/malaika-muneer/File-Analyser/service"
+import (
+	"github.com/malaika-muneer/File-Analyser/service"
+)
 
 type Router struct {
-	userService service.UserService
+	UserService   service.UserService
+	UploadService service.UploadServiceInterface
 }
 
-// NewRouter initializes a Router instance with the provided UserService
-func NewRouter(userService service.UserService) *Router {
+func NewRouter(userService service.UserService, uploadService service.UploadServiceInterface) *Router {
 	return &Router{
-		userService: userService,
+		UserService:   userService,
+		UploadService: uploadService,
 	}
 }

@@ -27,7 +27,6 @@ import (
 func (r *Router) UploadFilehandler(c *gin.Context) {
 	log.Println("Upload endpoint hit")
 
-	// Get user info from context
 	username, userExists := c.Get("username")
 	id, idExists := c.Get("id")
 	if !userExists || !idExists {
@@ -35,7 +34,6 @@ func (r *Router) UploadFilehandler(c *gin.Context) {
 		return
 	}
 
-	// Read uploaded file
 	file, _, err := c.Request.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read uploaded file"})
@@ -49,21 +47,18 @@ func (r *Router) UploadFilehandler(c *gin.Context) {
 		return
 	}
 
-	// Read number of chunks from form
 	numChunksStr := c.PostForm("numChunks")
 	numChunks, err := strconv.Atoi(numChunksStr)
 	if err != nil || numChunks < 1 {
-		numChunks = 1 // fallback to 1 chunk if invalid
+		numChunks = 1
 	}
 
-	// Call service with numChunks
-	resultMap, err := r.userService.UploadFile(fileContent, username.(string), id.(int), numChunks)
+	resultMap, err := r.UploadService.UploadFile(fileContent, username.(string), id.(int), numChunks)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error analyzing file"})
 		return
 	}
 
-	// Extract sequential and concurrent analyses and execution times
 	sequential, _ := resultMap["sequential"].([]models.FileAnalysis)
 	concurrent, _ := resultMap["concurrent"].([]models.FileAnalysis)
 	timeSeq, _ := resultMap["timeSeq"].(int64)
@@ -73,7 +68,7 @@ func (r *Router) UploadFilehandler(c *gin.Context) {
 		"message":        "File uploaded successfully",
 		"sequential":     sequential,
 		"concurrent":     concurrent,
-		"timeSequential": timeSeq, // in milliseconds
-		"timeConcurrent": timeCon, // in milliseconds
+		"timeSequential": timeSeq,
+		"timeConcurrent": timeCon,
 	})
 }

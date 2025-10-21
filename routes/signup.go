@@ -23,9 +23,11 @@ func (r *Router) SignupHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
-	if err := r.userService.SignupUser(user); err != nil {
+
+	if err := r.UserService.SignupUser(user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
 }
