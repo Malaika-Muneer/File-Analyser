@@ -1,8 +1,6 @@
 services:
   backend:
-    build:
-      context: .               # Build backend from the current directory
-      dockerfile: Dockerfile   # Use the Dockerfile in this directory
+    image: malaikamuneeer/file-analyser:latest   # ✅ Pull backend image from Docker Hub
     container_name: file-analyser-backend
     restart: unless-stopped      
     ports:
@@ -27,27 +25,27 @@ services:
 
   mysql-db:
     image: mysql:latest
-    platform: linux/amd64  # Add platform here too
+    platform: linux/amd64
     container_name: mysql-db
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=1234
       - MYSQL_DATABASE=file_analyser
     ports:
-      - "3307:3306"  # Change from expose to ports for external access
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - app-network
 
   mongo-db:
-    image: mongo:6.0.5  # Use specific version instead of latest
+    image: mongo:6.0.5
     platform: linux/amd64
     container_name: mongo-db
     restart: always
     ports:
       - "27017:27017"
-    environment:  # Add MongoDB authentication
+    environment:
       - MONGO_INITDB_DATABASE=file_analyser
     volumes:
       - mongo_data:/data/db
@@ -55,9 +53,7 @@ services:
       - app-network
 
   frontend:
-    build:
-      context: ./frontend       # Build frontend from frontend folder
-      dockerfile: Dockerfile
+    image: malaikamuneeer/file-analyser-frontend:latest   # ✅ Pull frontend image from Docker Hub
     container_name: file-analyser-frontend
     ports:
       - "5500:80"
