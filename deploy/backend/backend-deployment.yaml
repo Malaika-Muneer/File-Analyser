@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: file-analyser-backend
+spec:
+  selector:
+    matchLabels:
+      app: file-analyser-backend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: file-analyser-backend
+    spec:
+      containers:
+        - name: file-analyser-backend
+          image: malaikamuneeer/file-analyser:latest
+          ports:
+            - containerPort: 8005
+          env:
+            - name: DB_USER
+              value: "root"
+            - name: DB_PASS
+              value: "1234"
+            - name: DB_NAME
+              value: "file_analyser"
+            - name: DB_HOST
+              value: "mysql-db"
+            - name: DB_PORT
+              value: "3306"
+            - name: MONGO_URI
+              value: "mongodb://mongo-db:27017/file_analyser"
+            - name: MONGO_DB
+              value: "file_analyser"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-analyser-backend
+spec:
+  selector:
+    app: file-analyser-backend
+  ports:
+    - port: 8005
+      targetPort: 8005
+  type: ClusterIP

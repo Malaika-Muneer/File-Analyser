@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: file-analyser-frontend
+spec:
+  selector:
+    matchLabels:
+      app: file-analyser-frontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: file-analyser-frontend
+    spec:
+      containers:
+        - name: file-analyser-frontend
+          image: malaikamuneeer/file-analyser-frontend:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-analyser-frontend
+spec:
+  selector:
+    app: file-analyser-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
+  type: NodePort   # expose frontend for browser access
