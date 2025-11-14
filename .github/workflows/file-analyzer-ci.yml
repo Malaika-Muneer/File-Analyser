@@ -75,12 +75,7 @@ jobs:
         with:
           version: v0.20.0
 
-      - name: Load backend Docker image into kind cluster
-        run: kind load docker-image malaikamuneeer/file-analyser:latest
-
-      - name: Load frontend Docker image into kind cluster
-        run: kind load docker-image malaikamuneeer/file-analyser-frontend:latest
-
+      # No need to load images locally, they will be pulled from Docker Hub
       - name: Deploy backend to kind cluster
         run: kubectl apply -f deploy/backend/backend-deployment.yaml
 
