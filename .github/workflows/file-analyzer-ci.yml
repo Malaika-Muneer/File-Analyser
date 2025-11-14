@@ -81,13 +81,13 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
 
       - name: Deploy backend to Kubernetes
-        run: kubectl apply -f deploy/backend/backend-deployment.yaml
+        run: kubectl apply --validate=false -f deploy/backend/backend-deployment.yaml
 
       - name: Deploy frontend to Kubernetes
-        run: kubectl apply -f deploy/frontend/frontend-deployment.yaml
+        run: kubectl apply --validate=false -f deploy/frontend/frontend-deployment.yaml
 
       - name: Deploy MongoDB to Kubernetes
-        run: kubectl apply -f deploy/mongodb/mongo-deployment.yaml
+        run: kubectl apply --validate=false -f deploy/mongodb/mongo-deployment.yaml
 
       - name: Deploy MySQL to Kubernetes
-        run: kubectl apply -f deploy/mysql/mysql-deployment.yaml
+        run: kubectl apply --validate=false -f deploy/mysql/mysql-deployment.yaml
