@@ -37,7 +37,8 @@ jobs:
       - name: Build and push backend Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./backend
+          context: .               # Root folder (Dockerfile is at root)
+          file: ./Dockerfile       # Dockerfile at root
           push: true
           tags: malaikamuneeer/file-analyser:latest
 
@@ -71,6 +72,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./frontend
+          file: ./frontend/Dockerfile
           push: true
           tags: malaikamuneeer/file-analyser-frontend:latest
 
@@ -91,13 +93,13 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
 
       - name: Deploy backend to Kubernetes
-        run: kubectl apply -f k8s/backend-deployment.yml
+        run: kubectl apply -f deploy/backend/backend-deployment.yaml
 
       - name: Deploy frontend to Kubernetes
-        run: kubectl apply -f k8s/frontend-deployment.yml
+        run: kubectl apply -f deploy/frontend/frontend-deployment.yaml
 
       - name: Deploy MongoDB to Kubernetes
-        run: kubectl apply -f k8s/mongo-deployment.yml
+        run: kubectl apply -f deploy/mongodb/mongo-deployment.yaml
 
       - name: Deploy MySQL to Kubernetes
-        run: kubectl apply -f k8s/mysql-deployment.yml
+        run: kubectl apply -f deploy/mysql/mysql-deployment.yaml
