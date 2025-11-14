@@ -70,24 +70,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
+      - name: Set up kind (Kubernetes in Docker)
+        uses: engineerd/setup-kind@v0.5.0
         with:
-          version: 'latest'
+          version: v0.20.0
 
-      - name: Set kubeconfig
-        run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
+      - name: Load backend Docker image into kind cluster
+        run: kind load docker-image malaikamuneeer/file-analyser:latest
 
-      - name: Deploy backend to Kubernetes
-        run: kubectl apply --validate=false -f deploy/backend/backend-deployment.yaml
+      - name: Load frontend Docker image into kind cluster
+        run: kind load docker-image malaikamuneeer/file-analyser-frontend:latest
 
-      - name: Deploy frontend to Kubernetes
-        run: kubectl apply --validate=false -f deploy/frontend/frontend-deployment.yaml
+      - name: Deploy backend to kind cluster
+        run: kubectl apply -f deploy/backend/backend-deployment.yaml
 
-      - name: Deploy MongoDB to Kubernetes
-        run: kubectl apply --validate=false -f deploy/mongodb/mongo-deployment.yaml
+      - name: Deploy frontend to kind cluster
+        run: kubectl apply -f deploy/frontend/frontend-deployment.yaml
 
-      - name: Deploy MySQL to Kubernetes
-        run: kubectl apply --validate=false -f deploy/mysql/mysql-deployment.yaml
+      - name: Deploy MongoDB to kind cluster
+        run: kubectl apply -f deploy/mongodb/mongo-deployment.yaml
+
+      - name: Deploy MySQL to kind cluster
+        run: kubectl apply -f deploy/mysql/mysql-deployment.yaml
